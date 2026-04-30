@@ -118,9 +118,8 @@ These thematic sub-groups were derived from the literature review of individual 
 
 ```{r expmatrix, echo=FALSE}
 
-m <- readxl::read_excel(fs::path(here::here(), "..", "TraitsMeta",
-                                     "ExposureTraits.xlsx"),
-                            sheet = "StressorTraitMapping")
+m <- readxl::read_excel(fs::path("/mnt/envshare/data/traits/meta/ExposureTraits.xlsx"),
+                        sheet = "StressorTraitMapping")
 m %>%
   dplyr::mutate(
     Trait = stringr::str_wrap(Trait, 20),

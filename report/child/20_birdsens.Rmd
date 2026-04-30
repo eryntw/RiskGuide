@@ -9,9 +9,9 @@ library(knitr)
 library(kableExtra)
 library(stringr)
 
-candi <- readxl::read_excel(fs::path(here::here(), "..", "TraitsMeta",
-                                     "SensitivityTraits.xlsx"),
-                            sheet = "BirdVariableSelection")
+candi <- readxl::read_excel(
+  fs::path("/mnt/envshare/data/traits/meta/SensitivityTraits.xlsx"),
+  sheet = "BirdVariableSelection")
 
 candi %>%
   mutate(
@@ -45,9 +45,9 @@ Categorical variables were scored based on the ecological criteria summarised in
 
 ```{r scoretable, echo=FALSE}
 
-score <- readxl::read_excel(fs::path(here::here(), "..", "TraitsMeta",
-                                     "SensitivityTraits.xlsx"),
-                            sheet = "BirdScore")
+score <- readxl::read_excel(
+  fs::path("/mnt/envshare/data/traits/meta/SensitivityTraits.xlsx"),
+  sheet = "BirdScore")
 
 score %>%
   mutate(

@@ -32,7 +32,8 @@ style_kable <- function(kbl,
     kbl <- kbl %>%
       kableExtra::kable_styling(
       bootstrap_options = c("striped", "hover", "condensed"),
-      full_width = FALSE
+      full_width = FALSE,
+      font_size = 12
     ) %>%
       kableExtra::scroll_box(width = "100%", height = "500px")
   }

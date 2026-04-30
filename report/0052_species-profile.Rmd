@@ -1,4 +1,4 @@
-# Species Profile
+# Species Profile {#speciesprofile}
 
 ```{r spcoindf}
 
@@ -22,13 +22,27 @@ lv2list <- setNames(cols, cols) %>%
   })
 
 ### Sensitivity
-tar_load(sensitivity_imputed, store = fs::path(here::here(), tars$envBird$sensitivity$store))
+tar_load(sensitivity_imputed, 
+         store = tars$envBird$sensitivity$store)
+
 ### Exposure
-tar_load(exposure_indicator, store = fs::path(here::here(), tars$envBird$exposure$store))
+tar_load(exposure_indicator, 
+         store = tars$envBird$exposure$store)
+
 ### Pressure
-tar_load(iucn_threat, store = fs::path(here::here(), tars$envBird$threat$store))
-iucncode <- readxl::read_excel(fs::path(here::here(), "..", "TraitsMeta", "IUCN_threats.xlsx"), 
-                               sheet = "Threat-IUCN")
+tar_load(iucn_threat, 
+         store = tars$envBird$threat$store)
+iucn_threat$code[is.na(iucn_threat$code)] <- "Not Assessed"
+iucncode <- readxl::read_excel(
+  fs::path("/mnt/envshare/data/traits/meta", "IUCN_threats.xlsx"), 
+  sheet = "Threat-IUCN")
+trend <- coin$Data$Raw %>% 
+  dplyr::select(uCode, t_trend_score) %>% 
+  dplyr::mutate(t_trend_score = case_when(
+    t_trend_score == 3 ~ "Decreasing",
+    t_trend_score == 2 ~ "Stable",
+    t_trend_score == 1 ~ "Increasing"
+  ))
 
 ## tif stack for SDM map USG ----
 
@@ -42,7 +56,7 @@ bp_birdstack <- terra::rast(fs::path(here::here(), bp_bird$use_tif))
 
 ```{r rendersp, results='asis'}
 
-for (nm in df$uCode[order(df$uName)][1:5]) {
+for (nm in df$uCode[order(df$uName)]) {
 
   cat(knitr::knit_child(
     "child/52_SpeciesProfile.Rmd",

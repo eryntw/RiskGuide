@@ -21,10 +21,12 @@ tar_plan(
   ),
   
   tar_target(report,
-             envTargets::render_with_deps(input_directory = "report",
-                                          deps = file_deps |> unlist() |> unname(),
-                                          output_dir = fs::path("..", report_html_directory) # extra dots as run from inside /report
-             ),
-             format = "file"
+             {
+               envTargets::render_with_deps(input_directory = "report",
+                                            deps = file_deps |> unlist() |> unname(),
+                                            output_dir = fs::path("..", report_html_directory)
+                                            )
+             }
+             ,format = "file"
   )
 )

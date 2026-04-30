@@ -28,16 +28,9 @@ plot_species_raster <- function(sp_name,
   r_bp  <- if (sp_name %in% names(rast_B)) rast_B[[sp_name]] else NULL
   
   if (is.null(r_usg) && is.null(r_bp)) {
-    
-    msg <- paste0("Species '", sp_name, "' not predicted in either area.")
-    
-    p <- ggplot() +
-      annotate("text", x = 0.5, y = 0.5, label = msg, size = 6, hjust = 0.5) +
-      xlim(0, 1) +
-      ylim(0, 1) +
-      theme_void()
-    
-    return(p)
+    return(
+      knitr::asis_output(paste(sp_name, "not predicted in either area."))
+    )
   }
   
   # =========================================================

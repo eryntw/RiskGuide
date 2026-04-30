@@ -1,26 +1,44 @@
 ## `r uName` {-}
 
-[*`r sp`*]{style="font-size: 16px;"}
-
-[Current IUCN status: *`r unique(iucn_threat$code[iucn_threat$scientific_name == sp])`*]{style="font-size: 16px;"}
-
-[Rank: `r df$Rank[df$uCode == nm]` in `r nrow(df)` species]{style="font-size: 16px;"}
-
-[Vulnerability score: `r df$Vulnerability[df$uCode == nm]`]{style="font-size: 16px;"}
-
-```{r lv3plot, fig.width=6, fig.height=2}
-
-# =========================================================
-# 1. Bar plot (LEFT)
-# =========================================================
-
-spdf <- df %>% filter(uCode == species)
-
-plot_indicator_bar(spdf, indicators = c("Sensitivity", "Exposure", "Pressure"),
-                   colour_mode = "multi") + 
-  labs(title = paste0("Vulnerability Sub-Indices-", coin_name, " dataset"))
-
+```{r html}
+htmltools::div(
+  style = "display: flex; gap: 30px; align-items: flex-start;",
+  
+  # LEFT: info card
+  htmltools::div(
+    style = "flex: 1; border: 1px solid #ddd; padding: 12px; border-radius: 8px; margin-top: 0;",
+    htmltools::p(style = "margin-top:0; font-size:16px;", htmltools::em(htmltools::strong(sp))),
+    htmltools::p(style = "margin:6px 0;", htmltools::strong("IUCN status: "),
+                 unique(iucn_threat$code[iucn_threat$scientific_name == sp])),
+    htmltools::p(style = "margin:6px 0;", htmltools::strong("Trend: "),
+                 trend$t_trend_score[trend$uCode == nm]),
+    htmltools::p(style = "margin:6px 0;", htmltools::strong("Rank: "),
+                 df$Rank[df$uCode == nm], " / ", nrow(df)),
+    htmltools::p(style = "margin:6px 0;", htmltools::strong("Dataset: "), coin_name)
+  ),
+  
+  # RIGHT: plot
+  htmltools::div(
+    style = "flex: 2; margin-top: 0;",
+    htmltools::plotTag(
+      {
+        spdf <- df %>% filter(uCode == species)
+        plot_indicator_bar(spdf, 
+                           indicators = c("Sensitivity", "Exposure", "Pressure"),
+                           colour_mode = "multi") +
+          ggplot2::theme(
+            plot.title  = ggplot2::element_blank(),
+            plot.margin = ggplot2::margin(0, 0, 0, 0)
+          )
+      },
+      alt = "Indicator bar plot",
+      width = 400, height = 200
+    )
+  )
+)
 ```
+
+<br>
 
 ### SDM predicted distribution in the pilot areas {-}
 
@@ -39,19 +57,27 @@ plot_species_raster(
 
 ```
 
----
+<br>
 
 #### Sensitivity breadown and raw data {-}
 
-```{r sensplot, echo=FALSE, fig.height=5, fig.width=10}
+<div style="display: flex; gap: 30px; align-items: flex-start;">
+
+<div style="flex: 1.5;">
+
+```{r sensplot, echo=FALSE, fig.height=6, fig.width=6, fig.align='left', out.width="100%"}
 
 # =========================================================
 # 3. Sensitivity details
 # =========================================================
 
+spdf <- df %>% filter(uCode == species)
+
 plot_indicator_bar(spdf, unique(lv2list$Sensitivity$meta$Indicator), colour_mode = "single", single_colour = "royalblue3")
 
 ```
+
+</div> <div style="flex: 1.2; max-height: 400px; overflow-y: auto;">
 
 ```{r senstable, echo=FALSE}
 options(scipen = 999) # avoid scientific notations
@@ -74,11 +100,17 @@ sensitivity_imputed %>%
 
 ```
 
----
+</div> </div>
+
+<br>
 
 #### Exposure breadown and raw data {-}
 
-```{r expoplot, echo=FALSE, fig.height=5, fig.width=10}
+<div style="display: flex; gap: 30px; align-items: flex-start;">
+
+<div style="flex: 1.5;">
+
+```{r expoplot, echo=FALSE, fig.height=6, fig.width=6, fig.align='left', out.width="100%"}
 
 # =========================================================
 # 4. Exposure details
@@ -87,6 +119,8 @@ sensitivity_imputed %>%
 plot_indicator_bar(spdf, unique(lv2list$Exposure$meta$Indicator), colour_mode = "single", single_colour = "darkslategrey")
 
 ```
+
+</div> <div style="flex: 1.2; max-height: 400px; overflow-y: auto;">
 
 ```{r expotable, echo=FALSE}
 
@@ -102,30 +136,54 @@ exposure_indicator %>%
 
 ```
 
----
+</div> </div>
+
+<br>
 
 #### Pressure breadown and raw data {-}
 
-```{r presplot, echo=FALSE, fig.height=5, fig.width=10}
+<div style="display: flex; gap: 30px; align-items: flex-start;">
+
+<div style="flex: 1.5;">
+
+```{r presplot, echo=FALSE, fig.height=4, fig.width=4, fig.align='left', out.width="100%"}
 
 # =========================================================
 # 5. Pressure details
 # =========================================================
 
-plot_indicator_bar(spdf, unique(lv2list$Pressure$meta$Indicator), colour_mode = "single", single_colour = "lightpink") + labs(title = "Pressure")
+if (all(unique(lv2list$Pressure$meta$Indicator) == 0) &&
+    all(is.na(iucn_threat$code))) {
+  "Species not assessed by IUCN"
+} else {
+  plot_indicator_bar(spdf, unique(lv2list$Pressure$meta$Indicator), colour_mode = "single", single_colour = "lightpink")
+}
+
 ```
+
+</div> <div style="flex: 2; max-height: 400px; overflow-y: auto;">
 
 ```{r prestable, echo=FALSE}
 
-iucn_threat %>% 
-  dplyr::filter(scientific_name == sp) %>% 
-  dplyr::select(threat_code, threat_scope, threat_timing, threat_severity, threat_ias) %>% 
-  dplyr::mutate(threat_code2 = sub("^(([^_]+_){1}[^_]+).*", "\\1", threat_code)) %>% # ID lv2 threats
-  dplyr::left_join(iucncode, by = c("threat_code2" = "Code")) %>% 
-  dplyr::select(-threat_code2, -threat_code) %>% 
-  dplyr::relocate(Threat, threat_ias) %>%
-  dplyr::rename_with(~ sub("^threat_", "", .x)) %>% 
-  kableExtra::kbl(caption = "Identified IUCN threats for each species. Threats are classified at Level 2, and ias denotes identified alien species associated with invasive species threats.") %>% 
-  style_kable(style = "compact")
-  
+prestable <- iucn_threat %>% 
+  dplyr::filter(scientific_name == sp)
+
+if (nrow(prestable) == 1 && is.na(prestable$threat_index)) {
+  knitr::asis_output("No identified IUCN threat")
+} else {
+  prestable %>%
+    dplyr::select(threat_code, threat_scope, threat_timing, threat_severity, threat_ias) %>% 
+    dplyr::mutate(threat_code2 = sub("^(([^_]+_){1}[^_]+).*", "\\1", threat_code)) %>% # ID lv2 threats
+    dplyr::left_join(iucncode, by = c("threat_code2" = "Code")) %>% 
+    dplyr::select(-threat_code2, -threat_code) %>% 
+    dplyr::relocate(Threat, threat_ias) %>%
+    dplyr::rename_with(~ sub("^threat_", "", .x)) %>% 
+    kableExtra::kbl(caption = "Identified IUCN threats for each species. Threats are classified at Level 2, and ias denotes identified alien species associated with invasive species threats.") %>% 
+    style_kable(style = "compact")
+}  
+
 ```
+
+</div> </div>
+
+***

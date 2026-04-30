@@ -46,7 +46,7 @@ envTargets::write_tars(tars)
 
 # run everything ----------
 # in _targets.yaml
-tar_invalidate(report, store = tars$report$store)
+unlink(fs::path(tars$report, "compiled_html"), recursive = TRUE)
 purrr::walk2(purrr::map(tars_local, "script")
              , purrr::map(tars_local, "store")
              , \(x, y) targets::tar_make(script = x, store = y)

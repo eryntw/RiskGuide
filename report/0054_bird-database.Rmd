@@ -1,0 +1,22 @@
+# Bird Database {#bird-database}
+
+This section outlines the expert-curated trait databases used in this project. For each database, a summary of its scope, taxonomic and geographic coverage, and the proportion of missing data is provided. Where available, metadata describing each trait variable—including definitions and data types—are also presented.
+
+```{r birddb, echo=FALSE, results='asis', quiet=TRUE}
+
+targets::tar_source(fs::path(here::here("R")))
+dbdir <- "/mnt/envshare/data/traits/raw/bird"
+
+child_files <- list.files(
+  path = fs::path(here::here(), "report", "child"),
+  pattern = "^51_.*\\.Rmd$", # regex: starts with 51_ and ends with .Rmd
+  full.names = TRUE
+)
+
+for (f in child_files) {
+  cat(knitr::knit_child(f, quiet = TRUE), sep = "\n")
+}
+
+```
+
+***

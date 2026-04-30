@@ -2,7 +2,6 @@ library(targets)
 library(tarchetypes)
 library(geotargets)
 library(crew)
-library(crew.cluster)
 
 use_cores <- parallel::detectCores() - 2
 tar_option_set(packages = yaml::read_yaml("settings/packages.yaml")$packages, 

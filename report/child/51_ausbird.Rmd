@@ -27,7 +27,7 @@ cov <- knitr::knit_child("50_DbCovTp.Rmd", quiet = TRUE)
 cat(cov, sep = '\n')
 
 # metadata
-meta <- readxl::read_excel(fs::path(here::here(), "..", "envBird", "database", 
+meta <- readxl::read_excel(fs::path(dbdir, 
                             "Australian_Bird_Data_Version_1.xlsx"),
                    sheet = "Metadata")
 
@@ -70,3 +70,5 @@ kableExtra::kbl(meta) %>%
 The data below is obtained from `traitdata` R package.
 
 `r summarise_column_types(df)`
+
+***

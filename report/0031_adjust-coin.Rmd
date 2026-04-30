@@ -106,7 +106,7 @@ hdf_list <- list(
 
 ---
 
-## Adjusted coins
+## Adjusted Coins
 
 ```{r rendercoins, results='asis'}
 
@@ -124,4 +124,5 @@ for (nm in names(coins)) {
 }
 
 ```
----
+
+***

@@ -14,8 +14,6 @@ Below is a detailed demonstration of a Base Coin.
 
 ```{r basecoin, echo=FALSE}
 
-targets::tar_source(fs::path(here::here(), "..", "envBird", "R", "coin"))
-
 ## Name variable for knitting child
 h_df <- coin_1$Meta$Ind %>% 
   dplyr::select(iCode, Parent, iName, Weight) %>% 
@@ -73,3 +71,65 @@ cat(knitr::knit_child(
 ---
 
 ### Internal consistency {#internalconsist}
+
+#### Dominance pair
+
+In composite indicator construction, dominance (or robust) pairs are unit comparisons that remain consistent across different methodological choices. A higher number of such pairs indicates that rankings are stable and less sensitive to assumptions. In contrast, finding no dominance pairs means that rankings change under different methods, indicating high sensitivity and low robustness, so comparisons between units should be interpreted with caution.
+
+```{r dominance_pair}
+
+outlist <- COINr::outrankMatrix(coin$Data$Normalised[, -c(1:2)])
+knitr::asis_output(paste("There are", outlist$nDominant, "dominance pair identified."))
+
+```
+
+#### Cronbach’s alpha
+
+Internal consistency of the indicator set was assessed using Cronbach’s alpha (c-alpha) as a measure of reliability. Nunnally (1978) suggests c-alpha ≥ 0.7 as an acceptable reliability, acknowledging that acceptable cut-offs may vary between 0.6 and 0.8 depending on disciplinary conventions. Where indicator variances differed substantially, variables were standardised to a standard deviation of 1 prior to analysis. Because c-alpha increases with both the number of indicators and the average covariance among them, results were interpreted with these factors in mind. Indicator diagnostics were also performed by examining changes in c-alpha following the removal of individual variables; an increase in c-alpha upon deletion was taken to indicate that the variable contributed noise and was weakly correlated with the remaining indicators.
+
+```{r chronbach}
+
+iMeta <- coin$Meta$Ind
+
+# 1. Identify all unique Parent codes at Level 2
+parents_lv2 <- iMeta$iCode[iMeta$Level == 2]
+
+# 2. Create a table by looping through parents and calculating c-alpha
+ca_table <- data.frame(
+  Parent_Group = parents_lv2,
+  Cronbach_Alpha = sapply(parents_lv2, function(p) {
+    # get_cronbach automatically identifies Level 1 indicators 
+    # that belong to parent 'p' when Level = 1 is specified
+    COINr::get_cronbach(coin_1, dset = "Normalised", iCodes = p, Level = 1)
+  })
+)
+rownames(ca_table) <- NULL
+ca_table %>% 
+  mutate(across(where(is.numeric), round, 2)) %>% 
+  kableExtra::kbl(caption = "Cronbach’s alpha (c-alpha) for each thematic group indicating internal consistency reliability. NaN values occur where only one indicator is present. The ‘Constraints’ group shows low c-alpha, reflecting that the constraint traits are mostly independent of each other.") %>% 
+  style_kable(style = "compact")
+
+```
+
+#### Indicator correlations
+
+Within each aggregation group, pairwise correlations between indicators were examined against a predefined threshold to assess their coherence. Weak correlations (grey) indicate limited shared information, reducing the extent to which individual indicators contribute meaningfully to the aggregate. Negative correlations (red) suggest that an indicator captures an opposing trend relative to others in the group, and may therefore reflect a different underlying construct.
+
+**Internal correlations of Sensitivity traits and indicators**
+
+```{r corsens}
+
+COINr::plot_corr(coin, dset = "Normalised", iCodes = list("Sensitivity"),
+          grouplev = 2, flagcolours = T) + labs(title = "Sensitivity")
+```
+**Internal correlations of Exposure traits and indicators**
+
+```{r}
+
+COINr::plot_corr(coin, dset = "Normalised", iCodes = list("Exposure"),
+          grouplev = 2, flagcolours = T) + labs(title = "Exposure")
+```
+
+**Internal correlations of Pressure traits and indicators**
+
+No internal correlations were assessed, as each Pressure sub-group contains only a single indicator.
